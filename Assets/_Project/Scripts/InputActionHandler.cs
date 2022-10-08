@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace _Project.Scripts
@@ -28,6 +30,20 @@ namespace _Project.Scripts
         
         public static void UnsubscribeToClick(Action<Vector2> action) 
             => OnClick -= action;
+        
+        public static bool IsPointerOverUIObject()
+        {
+            var eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+            eventDataCurrentPosition.position = new Vector2(
+                InputActions.Main.TouchPosition.ReadValue<Vector2>().x,
+                InputActions.Main.TouchPosition.ReadValue<Vector2>().y);
 
+            var results = new List<RaycastResult>();
+
+            EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+
+            return results.Count > 0;
+        }
+        
     }
 }

@@ -47,7 +47,7 @@ namespace _Project.Scripts
     
         private void Start()
         {
-            ChangePlacementMode(PlacementType.Free);
+            ChangePlacementMode(PlacementType.Auto);
         }
 
         private void Update()
@@ -57,7 +57,8 @@ namespace _Project.Scripts
         
         private void OnClick(Vector2 position)
         {
-            _currentHandlerMode.Click(position);
+            if(!InputActionHandler.IsPointerOverUIObject())
+                _currentHandlerMode.Click(position);
         }
         private void OnEnable()
         {
