@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class BaseObject : MonoBehaviour
+public class PlacedObject : MonoBehaviour
 {
     [SerializeField] protected MeshRenderer _meshRenderer;
 
