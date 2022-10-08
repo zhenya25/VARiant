@@ -1,12 +1,13 @@
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace _Project.Scripts
 {
     public class ObjectPlacementController : MonoBehaviour
     {
         [SerializeField] private PlacedObject _placedPrefab;
+        [SerializeField] private ObjectProjector _objectProjectorPrefab;
+        private ObjectProjector _objectProjector;
 
         public PlacedObject SpawnedObject
         {
@@ -21,6 +22,12 @@ namespace _Project.Scripts
 
         private PlacedObject _spawnedObject;
         private IObjectPlacementMode _currentHandlerMode;
+
+        private void Awake()
+        {
+            _objectProjector = Instantiate(_objectProjectorPrefab);
+        }
+
         private IObjectPlacementMode GetPlacementModeByType(PlacementType type)
         {
             return type switch
@@ -35,6 +42,7 @@ namespace _Project.Scripts
         {
             _currentHandlerMode = GetPlacementModeByType(type);
             _currentHandlerMode.PlacedObject = SpawnedObject;
+            _currentHandlerMode.ObjectProjector = _objectProjector;
         }
     
         private void Start()
@@ -47,9 +55,9 @@ namespace _Project.Scripts
             _currentHandlerMode?.Update();
         }
         
-        private void OnClick(InputAction.CallbackContext ctx)
+        private void OnClick(Vector2 position)
         {
-            _currentHandlerMode.Click(InputActionHandler.LastTouchPosition);
+            _currentHandlerMode.Click(position);
         }
         private void OnEnable()
         {
