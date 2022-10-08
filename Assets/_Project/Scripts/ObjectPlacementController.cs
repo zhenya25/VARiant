@@ -1,107 +1,64 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class ObjectPlacementController : MonoBehaviour
+namespace _Project.Scripts
 {
-    [SerializeField] private PlacedObject _placedPrefab;
-
-    public PlacedObject SpawnedObject
+    public class ObjectPlacementController : MonoBehaviour
     {
-        get
+        [SerializeField] private PlacedObject _placedPrefab;
+
+        public PlacedObject SpawnedObject
         {
-            if (!_spawnedObject)
-                _spawnedObject = Instantiate(_placedPrefab, Vector3.zero, Quaternion.identity);
-            return _spawnedObject;
+            get
+            {
+                if (!_spawnedObject)
+                    _spawnedObject = Instantiate(_placedPrefab, Vector3.zero, Quaternion.identity);
+                return _spawnedObject;
+            }
+            private set => _spawnedObject = value;
         }
-        private set => _spawnedObject = value;
-    }
 
-    private PlacedObject _spawnedObject;
-    private IObjectPlacementMode _currentHandlerMode;
-    private IObjectPlacementMode GetPlacementModeByType(PlacementType type)
-    {
-        return type switch
+        private PlacedObject _spawnedObject;
+        private IObjectPlacementMode _currentHandlerMode;
+        private IObjectPlacementMode GetPlacementModeByType(PlacementType type)
         {
-            PlacementType.Free => new ObjectPlacementFreeMode(),
-            PlacementType.Auto => new ObjectPlacementAutoMode(),
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        };
-    }
+            return type switch
+            {
+                PlacementType.Free => new ObjectPlacementFreeMode(),
+                PlacementType.Auto => new ObjectPlacementAutoMode(),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+        }
 
-    public void ChangePlacementMode(PlacementType type)
-    {
-        _currentHandlerMode = GetPlacementModeByType(type);
-        _currentHandlerMode.PlacedObject = SpawnedObject;
-    }
-    
-    private void Start()
-    {
-        ChangePlacementMode(PlacementType.Free);
-    }
-
-    private void Update()
-    {
-        _currentHandlerMode?.Update();
-    }
-
-    
-}
-
-
-public enum PlacementType
-{
-    Free,
-    Auto
-}
-
-public interface IObjectPlacementMode
-{
-    public PlacedObject PlacedObject { get; set; }
-    public void Update();
-}
-
-
-public class ObjectPlacementFreeMode : IObjectPlacementMode
-{
-    public PlacedObject PlacedObject { get; set; }
-    public void Update()
-    {
-        if (!Input.GetMouseButtonDown(0)) return;
-        Vector2 touchPosition = Input.mousePosition;
-
-        if (MakeRaycast(out RaycastHit hit, touchPosition))
+        public void ChangePlacementMode(PlacementType type)
         {
-            PlacedObject.SetTransformByHit(hit);
+            _currentHandlerMode = GetPlacementModeByType(type);
+            _currentHandlerMode.PlacedObject = SpawnedObject;
+        }
+    
+        private void Start()
+        {
+            ChangePlacementMode(PlacementType.Free);
+        }
+
+        private void Update()
+        {
+            _currentHandlerMode?.Update();
+        }
+        
+        private void OnClick(InputAction.CallbackContext ctx)
+        {
+            _currentHandlerMode.Click(InputActionHandler.LastTouchPosition);
+        }
+        private void OnEnable()
+        {
+            InputActionHandler.SubscribeToClick(OnClick); 
+        }
+
+        private void OnDisable()
+        {
+            InputActionHandler.UnsubscribeToClick(OnClick); 
         }
     }
-    
-    private bool MakeRaycast(out RaycastHit hit, Vector2 touchPosition)
-    {
-        Ray ray = Camera.main.ScreenPointToRay(touchPosition);
-        return Physics.Raycast(ray, out hit, Mathf.Infinity);
-    }
-    
 }
-
-public class ObjectPlacementAutoMode : IObjectPlacementMode
-{
-    public PlacedObject PlacedObject { get; set; }
-    public void Update()
-    {
-        if (Input.touchCount == 0) return;
-        Vector2 touchPosition = Input.GetTouch(0).position;
-
-        if (MakeRaycast(out RaycastHit hit, touchPosition))
-        {
-            PlacedObject.SetTransformByHit(hit);
-        }
-    }
-    
-    private bool MakeRaycast(out RaycastHit hit, Vector2 touchPosition)
-    {
-        Ray ray = Camera.main.ScreenPointToRay(touchPosition);
-        return Physics.Raycast(ray, out hit, Mathf.Infinity);
-    }
-}
-
-
