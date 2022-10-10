@@ -2,7 +2,7 @@
 {
     public enum PlacementType
     {
-        Free,
-        Auto
+        Auto,
+        Free
     }
 }

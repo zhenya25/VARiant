@@ -1,18 +1,20 @@
 ﻿using UnityEngine;
 
-public class PlacedObject : MonoBehaviour
+namespace _Project.Scripts
 {
-    [SerializeField] protected MeshRenderer _meshRenderer;
+    public class PlacedObject : MonoBehaviour
+    {
+        [field:SerializeField] public MeshRenderer MeshRenderer { get; private set; }
 
-    public void SetPosition(Vector3 newPosition)
-    {
-        transform.position = newPosition;
+        public void SetPosition(Vector3 newPosition)
+        {
+            transform.position = newPosition;
+        }
+
+        public void SetPositionAndRotation(Vector3 pos, Quaternion rot)
+        {
+            transform.SetPositionAndRotation(pos,rot);
+        }
+        
     }
-    
-    public void SetTransformByHit(RaycastHit hit)
-    {
-        // var offset = _meshRenderer.bounds.ClosestPoint(transform.position - hit.point);
-        SetPosition(hit.point);
-    }
-    
 }

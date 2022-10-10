@@ -8,5 +8,6 @@ namespace _Project.Scripts
         public ObjectProjector ObjectProjector { get; set; }
         public void Update();
         public void Click(Vector2 touchPosition);
+        public void SetDirection(DirectionType directionType);
     }
 }

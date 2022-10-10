@@ -9,27 +9,35 @@ namespace _Project.Scripts
         
         private float _projectorOffsetMultiplier = 2f;
         private Camera _cameraMain;
+        private Transform _cameraTransform;
         public ObjectPlacementFreeMode()
         {
             _cameraMain = Camera.main;
+            _cameraTransform = _cameraMain.transform;
         }
 
         public void Update()
         {
-            var transform = _cameraMain.transform;
-            ObjectProjector.SetPosition(transform.position + transform.forward * _projectorOffsetMultiplier);
+            var forward = _cameraTransform.forward;
+            var position = _cameraTransform.position + forward * _projectorOffsetMultiplier;
+            forward.y = 0;
+            forward.Normalize();
+            var rotation = Quaternion.LookRotation(-forward);
+            
+            ObjectProjector.SetPositionAndRotation(position,rotation);
+            ObjectProjector.gameObject.SetActive(true);
         }
 
         public void Click(Vector2 touchPosition)
         {
-            PlacedObject.SetPosition(ObjectProjector.transform.position);
+            PlacedObject.SetPositionAndRotation(ObjectProjector.ModelRoot.position,ObjectProjector.ModelRoot.rotation);
+            PlacedObject.gameObject.SetActive(true);
         }
 
-        private bool MakeRaycast(out RaycastHit hit, Vector2 touchPosition)
+        public void SetDirection(DirectionType directionType)
         {
-            Ray ray = _cameraMain.ScreenPointToRay(touchPosition);
-            return Physics.Raycast(ray, out hit, Mathf.Infinity);
+            ObjectProjector.SetDirection(directionType);
         }
-    
+
     }
 }
